@@ -161,6 +161,169 @@ Execute the following command to run the test suite:
 composer test
 ```
 
+Here are somepractical examples of how to use it. Let me break this down into clear sections:
+
+#### Overview
+This is a lightweight PHP library for handling flash messages (temporary messages shown to users). It's framework-agnostic but can work with popular PHP frameworks like Laravel, Symfony, CakePHP, and CodeIgniter.
+
+#### Key Features
+- Session-based storage
+- Immediate or delayed message display
+- Custom message types
+- Framework independence
+- Simple HTML rendering
+
+Here are some practical examples of how to use this package:
+
+#### 1. Basic Setup
+First, install the package using Composer:
+```php
+composer require nassiry/flash-messages
+```
+
+#### 2. Simple Implementation
+Here's a basic example showing how to use flash messages:
+
+```php
+<?php
+// First, make sure to start the session
+session_start();
+
+// Include autoloader
+require __DIR__ . '/vendor/autoload.php';
+
+use Nassiry\FlashMessages\FlashMessages;
+
+// Create flash message instance
+$flash = FlashMessages::create();
+
+// Add some messages
+$flash->success('Your profile has been updated!');
+$flash->error('Please fill in all required fields.');
+$flash->info('Don't forget to verify your email.');
+
+// Render the messages
+$flash->render();
+```
+
+#### 3. Practical Use Case - Form Submission
+Here's a real-world example of handling form submission:
+
+```php
+<?php
+session_start();
+require __DIR__ . '/vendor/autoload.php';
+
+use Nassiry\FlashMessages\FlashMessages;
+
+$flash = FlashMessages::create();
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        // Your form processing logic here
+        if (empty($_POST['email'])) {
+            $flash->error('Email is required', true); // Show immediately
+        } else {
+            // Process successful submission
+            $flash->success('Form submitted successfully!');
+            header('Location: thank-you.php');
+            exit;
+        }
+    } catch (Exception $e) {
+        $flash->error('An error occurred: ' . $e->getMessage());
+    }
+}
+?>
+
+<!-- HTML Form -->
+<form method="POST">
+    <?php $flash->render(); // Render any flash messages ?>
+    <input type="email" name="email" placeholder="Enter your email">
+    <button type="submit">Submit</button>
+</form>
+```
+
+#### 4. Custom Renderer Example
+Here's how to create a custom renderer with Bootstrap styling:
+
+```php
+<?php
+use Nassiry\FlashMessages\FlashMessageRenderer;
+
+class BootstrapRenderer extends FlashMessageRenderer
+{
+    public function renderMessage(string $type, string $message): void
+    {
+        $bootstrapClass = match($type) {
+            'success' => 'alert-success',
+            'error' => 'alert-danger',
+            'info' => 'alert-info',
+            'warning' => 'alert-warning',
+            default => 'alert-secondary'
+        };
+        
+        echo sprintf(
+            '<div class="alert %s alert-dismissible fade show" role="alert">
+                %s
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>',
+            htmlspecialchars($bootstrapClass),
+            htmlspecialchars($message)
+        );
+    }
+}
+
+// Usage
+$renderer = new BootstrapRenderer();
+$flash = new FlashMessages(new FlashMessageStorage(), $renderer);
+```
+
+#### 5. Ajax Implementation
+Here's how to handle flash messages with Ajax:
+
+```php
+<?php
+// ajax-handler.php
+session_start();
+require __DIR__ . '/vendor/autoload.php';
+
+use Nassiry\FlashMessages\FlashMessages;
+
+$flash = FlashMessages::create();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Process Ajax request
+    try {
+        // Your processing logic here
+        $flash->success('Operation completed successfully', true);
+        echo json_encode(['status' => 'success', 'messages' => $flash->getMessages()]);
+    } catch (Exception $e) {
+        $flash->error($e->getMessage(), true);
+        echo json_encode(['status' => 'error', 'messages' => $flash->getMessages()]);
+    }
+}
+```
+
+```javascript
+// JavaScript to handle Ajax response
+fetch('ajax-handler.php', {
+    method: 'POST',
+    body: formData
+})
+.then(response => response.json())
+.then(data => {
+    if (data.messages) {
+        data.messages.forEach(msg => {
+            // Display message using your preferred UI method
+            showFlashMessage(msg.type, msg.message);
+        });
+    }
+});
+```
+
+These examples should give you a good starting point for implementing flash messages in your PHP applications using this package.
+
 ### License
 
 This package is open-source software licensed under the [MIT license](LICENSE).
