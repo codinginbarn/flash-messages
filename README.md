@@ -324,6 +324,63 @@ fetch('ajax-handler.php', {
 
 These examples should give you a good starting point for implementing flash messages in your PHP applications using this package.
 
+Based on my analysis, this Flash Messages Package is indeed practical and lightweight for several reasons:
+
+#### Lightweight Characteristics
+1. **Minimal Dependencies**
+- The package is framework-agnostic and doesn't require any external dependencies beyond PHP itself
+- Uses native PHP sessions for storage, avoiding database overhead
+
+2. **Simple Architecture**
+- Uses basic PHP session handling
+- Minimal class structure
+- No complex configuration required
+
+#### Server Impact
+1. **Memory Usage**
+- Very low memory footprint since it only stores simple message strings in sessions
+- No persistent storage requirements
+- Messages are automatically cleared after being displayed
+
+2. **Performance**
+- No database queries needed
+- No file system operations
+- Minimal processing overhead
+
+#### Practical Benefits
+1. **Easy Integration**
+```php
+// Minimal setup required
+session_start();
+require __DIR__ . '/vendor/autoload.php';
+use Nassiry\FlashMessages\FlashMessages;
+
+$flash = FlashMessages::create();
+```
+
+2. **Simple Usage**
+```php
+// Quick to implement
+$flash->success('Message saved');
+$flash->render();
+```
+
+3. **Flexible Implementation**
+- Can be used with any PHP project
+- Works with both traditional page loads and AJAX requests
+- Customizable rendering
+
+#### Potential Limitations
+1. **Session Dependency**
+- Requires PHP sessions to be enabled
+- May not be ideal for stateless applications
+
+2. **Scale Considerations**
+- Best suited for small to medium applications
+- For very large applications, you might want to consider message queuing systems instead
+
+For most web applications, this package provides a good balance between functionality and resource usage, making it a practical choice for handling flash messages without significant server overhead.
+
 ### License
 
 This package is open-source software licensed under the [MIT license](LICENSE).
